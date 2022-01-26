@@ -1,0 +1,128 @@
+Intro:
+    npm install -g sass
+
+    sass --watch input.scss output.css
+
+    sass --watch <dir_input>:<dir_output> //sass --watch sass:dist/css
+
+Partials: _mod.scss // the underscore (_) let sass know to not render this file
+
+Modules (@use vs @import):
+    @import:
+        part of the css3 specification
+        can import redondantly file
+        private variables imported
+        no namespacing
+
+    @use:
+        sass module system
+        import the file only once
+        private variables not imported
+        creates a namespace:
+            @use '_colours.scss';
+            h1 { color: colours.$primary; }
+
+            @use '_colours' as c;
+            h1 { color: c.$secondary; }
+
+            @use '_colours' as *;
+            h1 { color: $black; }
+
+Comments: 
+    // or /**/ 
+    generated compressed css file will eventually have comments stripped but don't put private info there
+
+Nesting
+
+Variables:
+    $primary: #229292
+
+Inheritance:
+    %header {
+        text-transform: uppercase;
+        color: $primary;
+    }
+
+    main {
+        h2 {
+            @extend %header;
+            // @extend .class OR @extend #id or @extend <tag> //we can also extend from any css selector too
+            margin-top: 0;
+        }
+        h3 {
+            @extend %header;
+        }
+    }
+
+Mixins:
+    @mixin header($color: cyan) {
+        text-transform: uppercase;
+        color: darken($color, 20%);
+        border-bottom: cyan 3px solid;
+    }
+    main {
+        h2 {
+            @include header($primary);
+            margin-top: 0;
+        }
+        h3 {
+            @extend header;
+        }
+    }
+
+Operators (all math operators can be apply in sass):
+    header {
+        border-bottom: $primary ($baseline / 2) solid;
+    }
+
+Built-in Modules (the Color mod, the Math mod...):
+    Color mod exple:
+        h2 {
+            color: darken($primary, 20%);
+        }
+
+    Math mod exple:
+        figure {
+            width: percentage(2/3);
+        }
+
+Flow control & Errors:
+    @mixin header($level) {
+        @if $level <=2 {
+            border-bottom: 1px $primary solid;
+        } @else {
+            @error "Level must be less or equal than 2"
+        }
+    }
+    h2 { @include header(2) }
+
+Debugging:
+    @mixin header($level) {
+        @if $level <=2 {
+            border-bottom: 1px $primary solid;
+            @debug "1px #{$primary} solid";
+        }
+    } 
+
+Forwarding:
+    before:
+        layout.scss: 
+            @use '_colours' as *;
+        screen.scss: 
+            @use '_colours' as *;
+            @use '_layout' as *;
+
+    now:
+        layout.scss: 
+            @use '_colours' as *;
+            @forward '_colours';
+        screen.scss:
+            @use 'layout' as *;
+
+Source maps:
+    sass src/sass:dist/css --embed-source-map
+    sass src/sass:dist/css --no-source-map
+
+Deployment:
+    sass src/sass:dist/css --style=compressed
+
